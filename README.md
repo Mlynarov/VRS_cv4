@@ -33,3 +33,4 @@
 - V súbore "Src/main.c" implementovať konfiguráciu EXTI pre vstupný pin, ku ktorému je pripojené tlačidlo.
 - V súbore "Src/main.c" implementovať funkciu "checkButtonState", ktorej deklarácia sa nachádza v "Inc/assignment.h".
 - V súbore "Inc/assignment.h" upraviť hodnoty makier, ktoré slúžia ako vstupné argumenty do funkcie "checkButtonState", podľa vlastnej potreby.
+
