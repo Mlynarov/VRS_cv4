@@ -22,6 +22,7 @@
 #include "main.h"
 #include "assignment.h"
 
+
 void SystemClock_Config(void);
 uint8_t check_button_state(GPIO_TypeDef* PORT, uint8_t PIN);
 
@@ -33,34 +34,36 @@ int main(void)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 
-  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);// 4 bity pre emption priority-0bitov sub priority
 
   SystemClock_Config();
 
+  /* Configure external interrupt - EXTI4*/
+  NVIC_SetPriority(EXTI4_IRQn, 1);// priorita prerusenia
+  NVIC_EnableIRQ(EXTI4_IRQn); // povolenie prerusenia
 
-  /*
-   * TASK - configure MCU peripherals so that button triggers external interrupt - EXTI.
-   * Button must be connected to the GPIO port B, pin 4.
-   * LED must be connected to the GPIO port A and its pin 4.
-   *
-   * Adjust values of macros defined in "assignment.h".
-   * Implement function "checkButtonState" declared in "assignment.h".
-   */
+  /*set EXTI source PB4*/// strana 251 potrebuje pin PB4- x001
+   SYSCFG->EXTICR[1] &= ~(0xFU << 0U);// ak je [0] pristupujeme k exti controller 1 ak je [1] tak k exti cont. 2 ....
+   SYSCFG->EXTICR[1] |= (0x1U << 0U);
+   //Enable interrupt from EXTI line 4
+   EXTI->IMR |= EXTI_IMR_MR4;
+   //Set EXTI trigger to falling edge
+   EXTI->FTSR &= ~(EXTI_IMR_MR4);//resetnutie dobeznej hrany
+   EXTI->RTSR |= EXTI_IMR_MR4;// setnutie nabeznej hrany
 
+   /*GPIO configuration, PB4*/
+   RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+   GPIOB->MODER &= ~(GPIO_MODER_MODER4);
+   GPIOB->PUPDR &= ~(GPIO_PUPDR_PUPDR4);
+   GPIOB->PUPDR |= GPIO_PUPDR_PUPDR4_0;
 
-  /* Configure external interrupt - EXTI*/
-
-  	  //type your code for EXTI configuration (priority, enable EXTI, setup EXTI for input pin, trigger edge) here:
-
-
-  /* Configure GPIOB-4 pin as an input pin - button */
-
-	  //type your code for GPIO configuration here:
-
-
-  /* Configure GPIOA-4 pin as an output pin - LED */
-
-	  //type your code for GPIO configuration here:
+   /*GPIO configuration, PA4*/
+   RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+   GPIOA->MODER &= ~(GPIO_MODER_MODER4);
+   GPIOA->MODER |= GPIO_MODER_MODER4_0;
+   GPIOA->OTYPER &= ~(GPIO_OTYPER_OT_4);
+   GPIOA->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR4);
+   GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPDR4);
 
 
   while (1)
@@ -135,7 +138,7 @@ void EXTI4_IRQHandler(void)
 	}
 
 	/* Clear EXTI4 pending register flag */
-
+	EXTI->PR |= (EXTI_PR_PIF4);
 		//type your code for pending register flag clear here:
 }
 
