@@ -24,7 +24,6 @@
 
 
 void SystemClock_Config(void);
-uint8_t check_button_state(GPIO_TypeDef* PORT, uint8_t PIN);
 
 uint8_t switch_state = 0;
 
@@ -71,14 +70,15 @@ int main(void)
 	  // Modify the code below so it sets/resets used output pin connected to the LED
 	  if(switch_state)
 	  {
-		  GPIOB->BSRR |= GPIO_BSRR_BS_3;
+		  GPIOA->BSRR |= GPIO_BSRR_BS_4;
 		  for(uint16_t i=0; i<0xFF00; i++){}
-		  GPIOB->BRR |= GPIO_BRR_BR_3;
+		  GPIOA->BRR |= GPIO_BRR_BR_4;
 		  for(uint16_t i=0; i<0xFF00; i++){}
+
 	  }
 	  else
 	  {
-		  GPIOB->BRR |= GPIO_BRR_BR_3;
+		  GPIOA->BRR |= GPIO_BRR_BR_4;
 	  }
   }
 
@@ -120,9 +120,31 @@ void SystemClock_Config(void)
 }
 
 
-uint8_t checkButtonState(GPIO_TypeDef* PORT, uint8_t PIN, uint8_t edge, uint8_t samples_window, uint8_t samples_required)
+uint8_t checkButtonState(GPIO_TypeDef* PORT,uint8_t PIN, uint8_t edge, uint8_t samples_window, uint8_t samples_required)
 {
-	  //type your code for "checkButtonState" implementation here:
+	uint8_t button_state = 0, timeout = 0;
+
+	while(button_state < samples_required && timeout < samples_window)
+	{
+		if(!(PORT->IDR & (edge << PIN))/*LL_GPIO_IsInputPinSet(PORT, PIN)*/)
+		{
+			button_state += 1;
+		}
+		else
+		{
+			button_state = 0;
+		}
+		timeout += 1;
+		LL_mDelay(1);
+	}
+	if((button_state >= samples_required) && (timeout <= samples_window))
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 
