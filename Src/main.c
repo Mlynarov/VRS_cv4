@@ -84,10 +84,7 @@ int main(void)
 
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+
 void SystemClock_Config(void)
 {
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_0);
@@ -126,7 +123,7 @@ uint8_t checkButtonState(GPIO_TypeDef* PORT,uint8_t PIN, uint8_t edge, uint8_t s
 
 	while(button_state < samples_required && timeout < samples_window)
 	{
-		if(!(PORT->IDR & (edge << PIN))/*LL_GPIO_IsInputPinSet(PORT, PIN)*/)
+		if(!(PORT->IDR & (edge << PIN)))
 		{
 			button_state += 1;
 		}
@@ -161,17 +158,10 @@ void EXTI4_IRQHandler(void)
 
 	/* Clear EXTI4 pending register flag */
 	EXTI->PR |= (EXTI_PR_PIF4);
-		//type your code for pending register flag clear here:
+
 }
 
-/* USER CODE BEGIN 4 */
 
-/* USER CODE END 4 */
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
